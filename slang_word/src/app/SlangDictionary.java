@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.File;
 
 public class SlangDictionary {
     private HashMap<String, String> slangWords;
@@ -20,10 +21,17 @@ public class SlangDictionary {
     public SlangDictionary() {
         slangWords = new HashMap<>();
         searchHistory = new LinkedHashSet<>();
+
+        File localData = new File("./data/local.data");
+        if (localData.exists()) {
+            loadFromFile("./data/local.data");
+        } else {
+            loadDefaultFile();
+        }
     }
 
     public void loadDefaultFile() {
-        String filePath = "./data/slang.txt";
+        String filePath = "../data/slang.txt";
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             br.readLine(); // Skip header
             String line;
