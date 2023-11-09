@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.File;
+import java.util.Random;
 
 public class SlangDictionary {
     private HashMap<String, String> slangWords;
@@ -79,8 +80,9 @@ public class SlangDictionary {
         }
     }
 
-    public void addWord(String word, String meaning) {
-        slangWords.put(word, meaning);
+    // Sub-feature
+    public boolean isSlangWordExist(String word) {
+        return slangWords.containsKey(word);
     }
 
     // Feature 1
@@ -103,5 +105,61 @@ public class SlangDictionary {
     // Feature 3
     public List<String> getSearchHistory() {
         return new ArrayList<>(searchHistory);
+    }
+
+    // Feature 4
+    public void addSlangWord(String word, String meaning) {
+        slangWords.put(word, meaning);
+    }
+
+    // Feature 5
+    public void editSlangWord(String word, String newMeaning) {
+        slangWords.put(word, newMeaning);
+    }
+
+    // Feature 6
+    public void deleteSlangWord(String word) {
+        slangWords.remove(word);
+    }
+
+    // Feature 7
+    public void resetSlangWords() {
+        slangWords.clear();
+        loadDefaultFile();
+    }
+
+    // Feature 8
+    public Object randomSlangWord() {
+        Object[] keys = slangWords.keySet().toArray();
+        Object key = keys[new Random().nextInt(keys.length)];
+        return key;
+    }
+
+    // Feature 9
+    public List<Object> getSlangWordQuiz(Object correctKey) {
+        Object[] keys = slangWords.keySet().toArray();
+        List<Object> answers = new ArrayList<>();
+        answers.add(slangWords.get(correctKey));
+        while (answers.size() < 4) {
+            Object randomKey = keys[new Random().nextInt(keys.length)];
+            String randomAnswer = slangWords.get(randomKey);
+            if (!answers.contains(randomAnswer)) {
+                answers.add(randomAnswer);
+            }
+        }
+        return answers;
+    }
+
+    // Feature 10
+    public List<Object> getDefinitionQuiz(Object correctDefinition) {
+        List<Object> answers = new ArrayList<>();
+        answers.add(searchByDefinition(correctDefinition.toString()));
+        while (answers.size() < 4) {
+            Object randomDefinition = slangWords.get(randomSlangWord());
+            if (!answers.contains(randomDefinition)) {
+                answers.add(searchByDefinition(randomDefinition.toString()));
+            }
+        }
+        return answers;
     }
 }
