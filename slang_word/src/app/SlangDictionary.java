@@ -23,9 +23,10 @@ public class SlangDictionary {
         slangWords = new HashMap<>();
         searchHistory = new LinkedHashSet<>();
 
-        File localData = new File("./data/local.data");
+        String localFileLocation = "../data/local.data";
+        File localData = new File(localFileLocation);
         if (localData.exists()) {
-            loadFromFile("./data/local.data");
+            loadFromFile(localFileLocation);
         } else {
             loadDefaultFile();
         }
@@ -53,6 +54,10 @@ public class SlangDictionary {
 
     public void saveToFile(String filePath) {
         try {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
             FileOutputStream fos = new FileOutputStream(filePath);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(slangWords);

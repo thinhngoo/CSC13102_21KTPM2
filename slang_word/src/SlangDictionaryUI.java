@@ -34,6 +34,7 @@ public class SlangDictionaryUI {
                 default: Utils.pauseScreen("Invalid choice. Please try again.", 2000);
             }
         }
+        dictionary.saveToFile("../data/local.data");
     }
 
     // * Feature 1
