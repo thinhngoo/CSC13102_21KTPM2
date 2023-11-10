@@ -1,5 +1,5 @@
 import app.SlangDictionary;
-import utils.Utils;
+import util.Utils;
 
 import java.util.Scanner;
 import java.util.List;
@@ -31,7 +31,7 @@ public class SlangDictionaryUI {
                 case 9:  { quizGameSlangWord();      break; }
                 case 10: { quizGameDefinition(); break; }
                 case 11: { running = false;          break; }
-                default: Utils.pauseScreen("Invalid choice. Please try again.", 2000);
+                default: Utils.pauseScreen("[Message]: Invalid choice. Please try again.", 2000);
             }
         }
         dictionary.saveToFile("../data/local.data");

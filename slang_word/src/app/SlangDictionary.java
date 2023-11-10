@@ -1,18 +1,18 @@
 package app;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.File;
 import java.util.Random;
 
 public class SlangDictionary {
@@ -25,11 +25,10 @@ public class SlangDictionary {
 
         String localFileLocation = "../data/local.data";
         File localData = new File(localFileLocation);
-        if (localData.exists()) {
+        if (localData.exists())
             loadFromFile(localFileLocation);
-        } else {
+        else
             loadDefaultFile();
-        }
     }
 
     public void loadDefaultFile() {
@@ -43,9 +42,8 @@ public class SlangDictionary {
                     String word = parts[0];
                     String meaning = parts[1];
                     slangWords.put(word, meaning);
-                } else {
+                } else
                     System.out.println("Ignoring line: " + line);
-                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,9 +53,8 @@ public class SlangDictionary {
     public void saveToFile(String filePath) {
         try {
             File file = new File(filePath);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+            if (!file.exists()) file.createNewFile();
+            
             FileOutputStream fos = new FileOutputStream(filePath);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(slangWords);
@@ -68,11 +65,14 @@ public class SlangDictionary {
         }
     }
 
+
+    // Sure checking
+    @SuppressWarnings("unchecked")
     public void loadFromFile(String filePath) {
         try {
             FileInputStream fis = new FileInputStream(filePath);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            slangWords = (HashMap) ois.readObject();
+            slangWords = (HashMap<String, String>) ois.readObject();
             ois.close();
             fis.close();
         } catch (IOException ioe) {
@@ -85,10 +85,7 @@ public class SlangDictionary {
         }
     }
 
-    // Sub-feature
-    public boolean isSlangWordExist(String word) {
-        return slangWords.containsKey(word);
-    }
+    public boolean isSlangWordExist(String word) { return slangWords.containsKey(word); }
 
     // * Feature 1
     public String searchBySlangWord(String word) {
@@ -99,39 +96,27 @@ public class SlangDictionary {
     // * Feature 2
     public List<String> searchByDefinition(String keyword) {
         List<String> matchingWords = new ArrayList<>();
-        for (Map.Entry<String, String> entry : slangWords.entrySet()) {
-            if (entry.getValue().contains(keyword)) {
+        for (Map.Entry<String, String> entry : slangWords.entrySet())
+            if (entry.getValue().contains(keyword))
                 matchingWords.add(entry.getKey());
-            }
-        }
+        
         return matchingWords;
     }
 
     // * Feature 3
-    public List<String> getSearchHistory() {
-        return new ArrayList<>(searchHistory);
-    }
+    public List<String> getSearchHistory() { return new ArrayList<>(searchHistory); }
 
     // * Feature 4
-    public void addSlangWord(String word, String meaning) {
-        slangWords.put(word, meaning);
-    }
+    public void addSlangWord(String word, String meaning) { slangWords.put(word, meaning); }
 
     // * Feature 5
-    public void editSlangWord(String word, String newMeaning) {
-        slangWords.put(word, newMeaning);
-    }
+    public void editSlangWord(String word, String newMeaning) { slangWords.put(word, newMeaning); }
 
     // * Feature 6
-    public void deleteSlangWord(String word) {
-        slangWords.remove(word);
-    }
+    public void deleteSlangWord(String word) { slangWords.remove(word); }
 
     // * Feature 7
-    public void resetSlangWords() {
-        slangWords.clear();
-        loadDefaultFile();
-    }
+    public void resetSlangWords() { slangWords.clear(); loadDefaultFile(); }
 
     // * Feature 8
     public Object randomSlangWord() {
@@ -148,9 +133,8 @@ public class SlangDictionary {
         while (answers.size() < 4) {
             Object randomKey = keys[new Random().nextInt(keys.length)];
             String randomAnswer = slangWords.get(randomKey);
-            if (!answers.contains(randomAnswer)) {
+            if (!answers.contains(randomAnswer))
                 answers.add(randomAnswer);
-            }
         }
         return answers;
     }
