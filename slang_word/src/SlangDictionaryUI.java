@@ -1,10 +1,9 @@
-import java.util.Scanner;
-
 import app.SlangDictionary;
+import utils.Utils;
 
-import java.io.IOException;
-import java.util.Collections;
+import java.util.Scanner;
 import java.util.List;
+import java.util.Collections;
 
 public class SlangDictionaryUI {
     private SlangDictionary dictionary;
@@ -16,129 +15,102 @@ public class SlangDictionaryUI {
     }
 
     private void start() {
-        while (true) {
+        boolean running = true;
+        while (running) {
             printMenu();
-            System.out.print("\nEnter your choice: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = Utils.getChoice();
             switch (choice) {
-                case 1:
-                    searchBySlangWord();
-                    break;
-                case 2:
-                    searchByDefinition();
-                    break;
-                case 3:
-                    getSearchHistory();
-                    break;
-                case 4:
-                    addNewSlangWord();
-                    break;
-                case 5:
-                    editSlangWord();
-                    break;
-                case 6:
-                    deleteSlangWord();
-                    break;
-                case 7:
-                    resetSlangWords();
-                    break;
-                case 8:
-                    randomSlangWord();
-                    break;
-                case 9:
-                    quizGameSlangWord();
-                    break;
-                case 10:
-                    quizGameWithDefinition();
-                    break;
-                case 11:
-                    System.exit(0);
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                case 1:  { searchBySlangWord();      break; }
+                case 2:  { searchByDefinition();     break; }
+                case 3:  { getSearchHistory();       break; }
+                case 4:  { addNewSlangWord();        break; }
+                case 5:  { editSlangWord();          break; }
+                case 6:  { deleteSlangWord();        break; }
+                case 7:  { resetSlangWords();        break; }
+                case 8:  { randomSlangWord();        break; }
+                case 9:  { quizGameSlangWord();      break; }
+                case 10: { quizGameWithDefinition(); break; }
+                case 11: { running = false;          break; }
+                default: Utils.pauseScreen("Invalid choice. Please try again.", 2000);
             }
         }
     }
 
-    private void printTitle() {
-        System.out.println("  _____ _                    __          __           _  ");
-        System.out.println(" / ____| |                   \\ \\        / /          | |");
-        System.out.println("| (___ | | __ _ _ __   __ _   \\ \\  /\\  / /__  _ __ __| |");
-        System.out.println(" \\___ \\| |/ _` | '_ \\ / _` |   \\ \\/  \\/ / _ \\| '__/ _` |");
-        System.out.println(" ____) | | (_| | | | | (_| |    \\  /\\  / (_) | | | (_| |");
-        System.out.println("|_____/|_|\\__,_|_| |_|\\__, |     \\/  \\/ \\___/|_|  \\__,_|");
-        System.out.println("                      __/ |                            ");
-        System.out.println("                     |___/                             ");
-        System.out.println("\n\n==========================================================\n");
-    }
-
+    // * Feature 1
     private void searchBySlangWord() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.print("Enter slang word: ");
-        String slangWord = scanner.next();
+        String slangWord = scanner.nextLine();
         System.out.println(dictionary.searchBySlangWord(slangWord));
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 2
     private void searchByDefinition() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.print("Enter definition: ");
-        String definition = scanner.next();
+        String definition = scanner.nextLine();
         System.out.println(dictionary.searchByDefinition(definition));
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 3
     private void getSearchHistory() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.println(dictionary.getSearchHistory());
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 4
     private void addNewSlangWord() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.print("Enter the new slang word: ");
         String word = scanner.nextLine();
         System.out.print("Enter the definition: ");
         String definition = scanner.nextLine();
-    
-        if (dictionary.isSlangWordExist(word)) {
-            clearScreen();
-            printTitle();
-            System.out.println("The slang word already exists.");
-            System.out.println("1. Overwrite the existing slang word");
-            System.out.println("2. Duplicate to a new slang word");
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
-            scannerSkippedHandler();
-            switch (choice) {
-                case 1:
-                    dictionary.addSlangWord(word, definition);
-                    System.out.println("The slang word has been overwritten.");
-                    break;
-                case 2:
-                    int i = 1;
-                    while (dictionary.isSlangWordExist(word + i)) {
-                        i++;
-                    }
-                    dictionary.addSlangWord(word + i, definition);
-                    System.out.println("A new slang word has been created: " + word + i);
-                    break;
-                default:
-                    System.out.println("Invalid choice. The slang word has not been added.");
-            }
-        } else {
+        
+        if (dictionary.isSlangWordExist(word))
+            addExistHandler(word, definition);
+        else {
             dictionary.addSlangWord(word, definition);
             System.out.println("The slang word has been added.");
         }
-        pressToContinue();
+
+        Utils.pauseScreen();
     }
 
+    private void addExistHandler(String word, String definition) {
+        Utils.clearScreen();
+        printTitle();
+        System.out.println("The slang word already exists.");
+        System.out.println("1. Overwrite the existing slang word");
+        System.out.println("2. Duplicate to a new slang word");
+        int choice = Utils.getChoice();
+        switch (choice) {
+            case 1:
+                dictionary.addSlangWord(word, definition);
+                System.out.println("The slang word has been overwritten.");
+                break;
+            case 2:
+                int i = 1;
+                while (dictionary.isSlangWordExist(word + i)) {
+                    i++;
+                }
+                dictionary.addSlangWord(word + i, definition);
+                System.out.println("A new slang word has been created: " + word + i);
+                break;
+            default:
+                System.out.println("Invalid choice. The slang word has not been added.");
+        }
+    }
+
+    // * Feature 5
     private void editSlangWord() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.print("Enter the slang word to edit: ");
         String word = scanner.nextLine();
@@ -150,11 +122,12 @@ public class SlangDictionaryUI {
         } else {
             System.out.println("The slang word does not exist.");
         }
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 6
     private void deleteSlangWord() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.print("Enter the slang word to delete: ");
         String word = scanner.nextLine();
@@ -170,11 +143,12 @@ public class SlangDictionaryUI {
         } else {
             System.out.println("The slang word does not exist.");
         }
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 7
     private void resetSlangWords() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         System.out.println("Are you sure you want to reset the slang words to the default? (yes/no)");
         String confirm = scanner.nextLine();
@@ -184,104 +158,84 @@ public class SlangDictionaryUI {
         } else {
             System.out.println("The slang words have not been reset.");
         }
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 8
     private void randomSlangWord() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         String key = (String) dictionary.randomSlangWord();
         System.out.println("On this day slang word: " + key + " - " + dictionary.searchBySlangWord(key));
-        pressToContinue();
+        Utils.pauseScreen();
     }
 
+    // * Feature 9
     public void quizGameSlangWord() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
         Object correctKey = dictionary.randomSlangWord();
         System.out.println("What is the meaning of the slang word: " + correctKey + "?");
     
         // Generate random answers
         List<Object> answers = dictionary.getSlangWordQuiz(correctKey);
-        Collections.shuffle(answers);
-        for (int i = 0; i < answers.size(); i++) {
-            System.out.println((i + 1) + ". " + answers.get(i));
-        }
-    
-        // Get user's answer
-        System.out.print("Enter your choice (1-4): ");
-        int userChoice = scanner.nextInt();
-        scannerSkippedHandler();
-    
-        // Check if the answer is correct
         String correctAnswer = dictionary.searchBySlangWord(correctKey.toString());
-        if (answers.get(userChoice - 1).equals(correctAnswer)) {
-            System.out.println("Correct!");
-        } else {
-            System.out.println("Incorrect. The correct answer is: " + correctAnswer);
-        }
-        pressToContinue();
+        answersHander(answers, correctAnswer);
+        Utils.pauseScreen();
     }
 
+    // * Feature 10
     private void quizGameWithDefinition() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
-        Object correctDefinition = dictionary.searchBySlangWord(dictionary.randomSlangWord().toString());
-        System.out.println("What is the slang word of the definition: " + correctDefinition + "?");
+        Object correctAnswer = dictionary.randomSlangWord();
+        Object correctValue = dictionary.searchBySlangWord(correctAnswer.toString());
+        System.out.println("What is the slang word of the definition: " + correctValue + "?");
         
         // Generate random answers
-        List<Object> answers = dictionary.getDefinitionQuiz(correctDefinition);
-        Collections.shuffle(answers);
-        for (int i = 0; i < answers.size(); i++) {
-            System.out.println((i + 1) + ". " + answers.get(i));
-        }
+        List<Object> answers = dictionary.getDefinitionQuiz(correctAnswer);
+        answersHander(answers,  correctAnswer.toString());
+        Utils.pauseScreen();
+    }
 
-        // Get user's answer
-        System.out.print("Enter your choice (1-4): ");
-        int userChoice = scanner.nextInt();
-        scannerSkippedHandler();
-    
-        // Check if the answer is correct
-        if (answers.get(userChoice - 1).equals(correctDefinition)) {
+    private void answersHander(List<Object> answers, String correctAnswer) {
+        Collections.shuffle(answers);
+        for (int i = 0; i < answers.size(); i++)
+            System.out.println((i + 1) + ". " + answers.get(i));
+
+        int userChoice = Utils.getChoice("Enter your choice (1-4): ");
+        if (answers.get(userChoice - 1).equals(correctAnswer))
             System.out.println("Correct!");
-        } else {
-            System.out.println("Incorrect. The correct answer is: " + correctDefinition);
-        }
-        pressToContinue();
+        else
+            System.out.println("Incorrect. The correct answer is: " + correctAnswer);
     }
 
     private void printMenu() {
-        clearScreen();
+        Utils.clearScreen();
         printTitle();
-        System.out.println(" 1. Search by Slang Word");
-        System.out.println(" 2. Search by definition");
-        System.out.println(" 3. Show search history");
-        System.out.println(" 4. Add new slang word");
-        System.out.println(" 5. Edit slang word");
-        System.out.println(" 6. Delete slang word");
-        System.out.println(" 7. Reset default slang words");
-        System.out.println(" 8. Get random slang words");
-        System.out.println(" 9. Quiz game: What is the meaning of the slang word?");
-        System.out.println("10. Quiz game: What is the slang word of the definition?");
-        System.out.println("11. Exit");
+        System.out.println(" 1 - Search by Slang Word");
+        System.out.println(" 2 - Search by definition");
+        System.out.println(" 3 - Show search history");
+        System.out.println(" 4 - Add new slang word");
+        System.out.println(" 5 - Edit slang word");
+        System.out.println(" 6 - Delete slang word");
+        System.out.println(" 7 - Reset default slang words");
+        System.out.println(" 8 - Get random slang words");
+        System.out.println(" 9 - Quiz game: What is the meaning of the slang word?");
+        System.out.println("10 - Quiz game: What is the slang word of the definition?");
+        System.out.println("11 - Exit");
     }
 
-    private void clearScreen() {  
-        System.out.print("\033[H\033[2J");  
-        System.out.flush();  
-    }
-
-    private void pressToContinue() {
-        System.out.println("\nPress Enter to continue...");
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void scannerSkippedHandler() {
-        scanner.nextLine();
+    private void printTitle() {
+        System.out.println("  _____ _                    __          __           _  ");
+        System.out.println(" / ____| |                   \\ \\        / /          | |");
+        System.out.println("| (___ | | __ _ _ __   __ _   \\ \\  /\\  / /__  _ __ __| |");
+        System.out.println(" \\___ \\| |/ _` | '_ \\ / _` |   \\ \\/  \\/ / _ \\| '__/ _` |");
+        System.out.println(" ____) | | (_| | | | | (_| |    \\  /\\  / (_) | | | (_| |");
+        System.out.println("|_____/|_|\\__,_|_| |_|\\__, |     \\/  \\/ \\___/|_|  \\__,_|");
+        System.out.println("                      __/ |                            ");
+        System.out.println("                     |___/                             ");
+        System.out.println("\n\n==========================================================\n");
     }
 
     public static void main(String[] args) {
