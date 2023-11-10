@@ -29,7 +29,7 @@ public class SlangDictionaryUI {
                 case 7:  { resetSlangWords();        break; }
                 case 8:  { randomSlangWord();        break; }
                 case 9:  { quizGameSlangWord();      break; }
-                case 10: { quizGameWithDefinition(); break; }
+                case 10: { quizGameDefinition(); break; }
                 case 11: { running = false;          break; }
                 default: Utils.pauseScreen("Invalid choice. Please try again.", 2000);
             }
@@ -43,7 +43,11 @@ public class SlangDictionaryUI {
         printTitle();
         System.out.print("Enter slang word: ");
         String slangWord = scanner.nextLine();
-        System.out.println(dictionary.searchBySlangWord(slangWord));
+        String result = dictionary.searchBySlangWord(slangWord);
+        if (result == null)
+            System.out.println("[Message]: The slang word does not exist.");
+        else
+            System.out.println("Definition -> " + dictionary.searchBySlangWord(slangWord));
         Utils.pauseScreen();
     }
 
@@ -53,7 +57,14 @@ public class SlangDictionaryUI {
         printTitle();
         System.out.print("Enter definition: ");
         String definition = scanner.nextLine();
-        System.out.println(dictionary.searchByDefinition(definition));
+        List<String> result = dictionary.searchByDefinition(definition);
+        if (result.isEmpty())
+            System.out.println("[Message]: The search does not match any slang words");
+        else {
+            System.out.println("Slang words -> ");
+            for (String word : result)
+                System.out.println(" - " + word);
+        }
         Utils.pauseScreen();
     }
 
@@ -61,7 +72,9 @@ public class SlangDictionaryUI {
     private void getSearchHistory() {
         Utils.clearScreen();
         printTitle();
-        System.out.println(dictionary.getSearchHistory());
+        System.out.println("Search history -> ");
+        for (String word : dictionary.getSearchHistory())
+            System.out.println(" - " + word);
         Utils.pauseScreen();
     }
 
@@ -78,7 +91,7 @@ public class SlangDictionaryUI {
             addExistHandler(word, definition);
         else {
             dictionary.addSlangWord(word, definition);
-            System.out.println("The slang word has been added.");
+            System.out.println("[Message]: The slang word has been added.");
         }
 
         Utils.pauseScreen();
@@ -89,12 +102,12 @@ public class SlangDictionaryUI {
         printTitle();
         System.out.println("The slang word already exists.");
         System.out.println("1. Overwrite the existing slang word");
-        System.out.println("2. Duplicate to a new slang word");
+        System.out.println("2. Duplicate to a new slang word\n");
         int choice = Utils.getChoice();
         switch (choice) {
             case 1:
                 dictionary.addSlangWord(word, definition);
-                System.out.println("The slang word has been overwritten.");
+                System.out.println("[Message]: The slang word has been overwritten.");
                 break;
             case 2:
                 int i = 1;
@@ -102,10 +115,10 @@ public class SlangDictionaryUI {
                     i++;
                 }
                 dictionary.addSlangWord(word + i, definition);
-                System.out.println("A new slang word has been created: " + word + i);
+                System.out.println("[Message]: A new slang word has been created: " + word + i);
                 break;
             default:
-                System.out.println("Invalid choice. The slang word has not been added.");
+                System.out.println("[Message]: Invalid choice. The slang word has not been added.");
         }
     }
 
@@ -119,9 +132,9 @@ public class SlangDictionaryUI {
             System.out.print("Enter the new definition: ");
             String newDefinition = scanner.nextLine();
             dictionary.editSlangWord(word, newDefinition);
-            System.out.println("The slang word has been updated.");
+            System.out.println("[Message]: The slang word has been updated.");
         } else {
-            System.out.println("The slang word does not exist.");
+            System.out.println("[Message]: The slang word does not exist.");
         }
         Utils.pauseScreen();
     }
@@ -133,16 +146,17 @@ public class SlangDictionaryUI {
         System.out.print("Enter the slang word to delete: ");
         String word = scanner.nextLine();
         if (dictionary.isSlangWordExist(word)) {
-            System.out.println("Are you sure you want to delete this slang word? Type (yes/no)");
+            System.out.println("Are you absolutely sure you want to delete this slang word?");
+            System.out.print("Please type \"yes\" to confirm: ");
             String confirm = scanner.nextLine();
             if (confirm.equalsIgnoreCase("yes")) {
                 dictionary.deleteSlangWord(word);
-                System.out.println("The slang word has been deleted.");
+                System.out.println("[Message]: The slang word has been deleted.");
             } else {
-                System.out.println("The slang word has not been deleted.");
+                System.out.println("[Message]: The slang word has not been deleted.");
             }
         } else {
-            System.out.println("The slang word does not exist.");
+            System.out.println("[Message]: The slang word does not exist.");
         }
         Utils.pauseScreen();
     }
@@ -151,13 +165,14 @@ public class SlangDictionaryUI {
     private void resetSlangWords() {
         Utils.clearScreen();
         printTitle();
-        System.out.println("Are you sure you want to reset the slang words to the default? (yes/no)");
+        System.out.println("Are you sure you want to reset the slang words to the default?");
+        System.out.print("Please type \"yes\" to confirm: ");
         String confirm = scanner.nextLine();
         if (confirm.equalsIgnoreCase("yes")) {
             dictionary.resetSlangWords();
-            System.out.println("The slang words have been reset to the default.");
+            System.out.println("[Message]: The slang words have been reset to the default.");
         } else {
-            System.out.println("The slang words have not been reset.");
+            System.out.println("[Message]: The slang words have not been reset.");
         }
         Utils.pauseScreen();
     }
@@ -186,7 +201,7 @@ public class SlangDictionaryUI {
     }
 
     // * Feature 10
-    private void quizGameWithDefinition() {
+    private void quizGameDefinition() {
         Utils.clearScreen();
         printTitle();
         Object correctAnswer = dictionary.randomSlangWord();
@@ -206,9 +221,9 @@ public class SlangDictionaryUI {
 
         int userChoice = Utils.getChoice("Enter your choice (1-4): ");
         if (answers.get(userChoice - 1).equals(correctAnswer))
-            System.out.println("Correct!");
+            System.out.println("\n=> Correct!");
         else
-            System.out.println("Incorrect. The correct answer is: " + correctAnswer);
+            System.out.println("\n=> Incorrect. The correct answer is: " + correctAnswer);
     }
 
     private void printMenu() {
@@ -222,9 +237,10 @@ public class SlangDictionaryUI {
         System.out.println(" 6 - Delete slang word");
         System.out.println(" 7 - Reset default slang words");
         System.out.println(" 8 - Get random slang words");
-        System.out.println(" 9 - Quiz game: What is the meaning of the slang word?");
-        System.out.println("10 - Quiz game: What is the slang word of the definition?");
-        System.out.println("11 - Exit");
+        System.out.println(" 9 - Quiz game: What is the meaning of the slang word ?");
+        System.out.println("10 - Quiz game: What is the slang word of the definition ?");
+        System.out.println("11 - Exit\n");
+        System.out.println("==========================================================\n");
     }
 
     private void printTitle() {
