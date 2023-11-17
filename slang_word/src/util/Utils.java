@@ -55,4 +55,8 @@ public class Utils {
     public static void scannerSkippedHandler() {
         scanner.nextLine();
     }
+
+    public static void log(String message) {
+        System.out.println(message);
+    }
 }

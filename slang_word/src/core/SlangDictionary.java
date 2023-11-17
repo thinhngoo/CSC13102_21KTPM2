@@ -1,4 +1,4 @@
-package app;
+package core;
 
 import java.util.Map;
 import java.util.List;
@@ -19,11 +19,11 @@ public class SlangDictionary {
     private HashMap<String, String> slangWords;
     private LinkedHashSet<String> searchHistory;
 
-    public SlangDictionary() {
+    protected SlangDictionary() {
         slangWords = new HashMap<>();
         searchHistory = new LinkedHashSet<>();
 
-        String localFileLocation = "../data/local.data";
+        String localFileLocation = "./data/local.data";
         File localData = new File(localFileLocation);
         if (localData.exists())
             loadFromFile(localFileLocation);
@@ -31,8 +31,8 @@ public class SlangDictionary {
             loadDefaultFile();
     }
 
-    public void loadDefaultFile() {
-        String filePath = "../data/slang.txt";
+    protected void loadDefaultFile() {
+        String filePath = "./data/slang.txt";
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             br.readLine(); // Skip header
             String line;
@@ -50,7 +50,7 @@ public class SlangDictionary {
         }
     }
 
-    public void saveToFile(String filePath) {
+    protected void saveToFile(String filePath) {
         try {
             File file = new File(filePath);
             if (!file.exists()) file.createNewFile();
@@ -68,7 +68,7 @@ public class SlangDictionary {
 
     // Sure checking
     @SuppressWarnings("unchecked")
-    public void loadFromFile(String filePath) {
+    protected void loadFromFile(String filePath) {
         try {
             FileInputStream fis = new FileInputStream(filePath);
             ObjectInputStream ois = new ObjectInputStream(fis);
@@ -85,16 +85,16 @@ public class SlangDictionary {
         }
     }
 
-    public boolean isSlangWordExist(String word) { return slangWords.containsKey(word); }
+    protected boolean isSlangWordExist(String word) { return slangWords.containsKey(word); }
 
     // * Feature 1
-    public String searchBySlangWord(String word) {
+    protected String searchBySlangWord(String word) {
         searchHistory.add(word);
         return slangWords.get(word);
     }
 
     // * Feature 2
-    public List<String> searchByDefinition(String keyword) {
+    protected List<String> searchByDefinition(String keyword) {
         List<String> matchingWords = new ArrayList<>();
         for (Map.Entry<String, String> entry : slangWords.entrySet())
             if (entry.getValue().contains(keyword))
@@ -104,29 +104,29 @@ public class SlangDictionary {
     }
 
     // * Feature 3
-    public List<String> getSearchHistory() { return new ArrayList<>(searchHistory); }
+    protected List<String> getSearchHistory() { return new ArrayList<>(searchHistory); }
 
     // * Feature 4
-    public void addSlangWord(String word, String meaning) { slangWords.put(word, meaning); }
+    protected void addSlangWord(String word, String meaning) { slangWords.put(word, meaning); }
 
     // * Feature 5
-    public void editSlangWord(String word, String newMeaning) { slangWords.put(word, newMeaning); }
+    protected void editSlangWord(String word, String newMeaning) { slangWords.put(word, newMeaning); }
 
     // * Feature 6
-    public void deleteSlangWord(String word) { slangWords.remove(word); }
+    protected void deleteSlangWord(String word) { slangWords.remove(word); }
 
     // * Feature 7
-    public void resetSlangWords() { slangWords.clear(); loadDefaultFile(); }
+    protected void resetSlangWords() { slangWords.clear(); loadDefaultFile(); }
 
     // * Feature 8
-    public Object randomSlangWord() {
+    protected Object randomSlangWord() {
         Object[] keys = slangWords.keySet().toArray();
         Object key = keys[new Random().nextInt(keys.length)];
         return key;
     }
 
     // * Feature 9
-    public List<Object> getSlangWordQuiz(Object correctAnswer) {
+    protected List<Object> getSlangWordQuiz(Object correctAnswer) {
         Object[] keys = slangWords.keySet().toArray();
         List<Object> answers = new ArrayList<>();
         answers.add(slangWords.get(correctAnswer));
@@ -140,7 +140,7 @@ public class SlangDictionary {
     }
 
     // Feature 10
-    public List<Object> getDefinitionQuiz(Object correctAnswer) {
+    protected List<Object> getDefinitionQuiz(Object correctAnswer) {
         List<Object> answers = new ArrayList<>();
         answers.add(correctAnswer.toString());
         while (answers.size() < 4) {

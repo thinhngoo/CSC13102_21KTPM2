@@ -1,63 +1,64 @@
-import app.SlangDictionary;
+package view;
 import util.Utils;
 
 import java.util.Scanner;
+
+import core.SlangDictionary;
+
 import java.util.List;
 import java.util.Collections;
 
-public class SlangDictionaryUI {
-    private SlangDictionary dictionary;
+public class CLI extends SlangDictionary implements UI {
     private Scanner scanner;
 
-    private SlangDictionaryUI() {
-        dictionary = new SlangDictionary();
+    public CLI() {
         scanner = new Scanner(System.in);
     }
 
-    private void start() {
+    public void start() {
         boolean running = true;
         while (running) {
             printMenu();
             int choice = Utils.getChoice();
             switch (choice) {
-                case 1:  { searchBySlangWord();      break; }
-                case 2:  { searchByDefinition();     break; }
-                case 3:  { getSearchHistory();       break; }
-                case 4:  { addNewSlangWord();        break; }
-                case 5:  { editSlangWord();          break; }
-                case 6:  { deleteSlangWord();        break; }
-                case 7:  { resetSlangWords();        break; }
-                case 8:  { randomSlangWord();        break; }
-                case 9:  { quizGameSlangWord();      break; }
-                case 10: { quizGameDefinition(); break; }
+                case 1:  { feature1();  break; }
+                case 2:  { feature2();  break; }
+                case 3:  { feature3();  break; }
+                case 4:  { feature4();  break; }
+                case 5:  { feature5();  break; }
+                case 6:  { feature6();  break; }
+                case 7:  { feature7();  break; }
+                case 8:  { feature8();  break; }
+                case 9:  { feature9();  break; }
+                case 10: { feature10(); break; }
                 case 11: { running = false;          break; }
                 default: Utils.pauseScreen("[Message]: Invalid choice. Please try again.", 2000);
             }
         }
-        dictionary.saveToFile("../data/local.data");
+        saveToFile("./data/local.data");
     }
 
     // * Feature 1
-    private void searchBySlangWord() {
+    private void feature1() {
         Utils.clearScreen();
         printTitle();
         System.out.print("Enter slang word: ");
         String slangWord = scanner.nextLine();
-        String result = dictionary.searchBySlangWord(slangWord);
+        String result = searchBySlangWord(slangWord);
         if (result == null)
             System.out.println("[Message]: The slang word does not exist.");
         else
-            System.out.println("Definition -> " + dictionary.searchBySlangWord(slangWord));
+            System.out.println("Definition -> " + searchBySlangWord(slangWord));
         Utils.pauseScreen();
     }
 
     // * Feature 2
-    private void searchByDefinition() {
+    private void feature2() {
         Utils.clearScreen();
         printTitle();
         System.out.print("Enter definition: ");
         String definition = scanner.nextLine();
-        List<String> result = dictionary.searchByDefinition(definition);
+        List<String> result = searchByDefinition(definition);
         if (result.isEmpty())
             System.out.println("[Message]: The search does not match any slang words");
         else {
@@ -69,17 +70,17 @@ public class SlangDictionaryUI {
     }
 
     // * Feature 3
-    private void getSearchHistory() {
+    private void feature3() {
         Utils.clearScreen();
         printTitle();
         System.out.println("Search history -> ");
-        for (String word : dictionary.getSearchHistory())
+        for (String word : getSearchHistory())
             System.out.println(" - " + word);
         Utils.pauseScreen();
     }
 
     // * Feature 4
-    private void addNewSlangWord() {
+    private void feature4() {
         Utils.clearScreen();
         printTitle();
         System.out.print("Enter the new slang word: ");
@@ -87,10 +88,10 @@ public class SlangDictionaryUI {
         System.out.print("Enter the definition: ");
         String definition = scanner.nextLine();
         
-        if (dictionary.isSlangWordExist(word))
+        if (isSlangWordExist(word))
             addExistHandler(word, definition);
         else {
-            dictionary.addSlangWord(word, definition);
+            addSlangWord(word, definition);
             System.out.println("[Message]: The slang word has been added.");
         }
 
@@ -106,15 +107,15 @@ public class SlangDictionaryUI {
         int choice = Utils.getChoice();
         switch (choice) {
             case 1:
-                dictionary.addSlangWord(word, definition);
+                addSlangWord(word, definition);
                 System.out.println("[Message]: The slang word has been overwritten.");
                 break;
             case 2:
                 int i = 1;
-                while (dictionary.isSlangWordExist(word + i)) {
+                while (isSlangWordExist(word + i)) {
                     i++;
                 }
-                dictionary.addSlangWord(word + i, definition);
+                addSlangWord(word + i, definition);
                 System.out.println("[Message]: A new slang word has been created: " + word + i);
                 break;
             default:
@@ -123,15 +124,15 @@ public class SlangDictionaryUI {
     }
 
     // * Feature 5
-    private void editSlangWord() {
+    private void feature5() {
         Utils.clearScreen();
         printTitle();
         System.out.print("Enter the slang word to edit: ");
         String word = scanner.nextLine();
-        if (dictionary.isSlangWordExist(word)) {
+        if (isSlangWordExist(word)) {
             System.out.print("Enter the new definition: ");
             String newDefinition = scanner.nextLine();
-            dictionary.editSlangWord(word, newDefinition);
+            editSlangWord(word, newDefinition);
             System.out.println("[Message]: The slang word has been updated.");
         } else {
             System.out.println("[Message]: The slang word does not exist.");
@@ -140,17 +141,17 @@ public class SlangDictionaryUI {
     }
 
     // * Feature 6
-    private void deleteSlangWord() {
+    private void feature6() {
         Utils.clearScreen();
         printTitle();
         System.out.print("Enter the slang word to delete: ");
         String word = scanner.nextLine();
-        if (dictionary.isSlangWordExist(word)) {
+        if (isSlangWordExist(word)) {
             System.out.println("Are you absolutely sure you want to delete this slang word?");
             System.out.print("Please type \"yes\" to confirm: ");
             String confirm = scanner.nextLine();
             if (confirm.equalsIgnoreCase("yes")) {
-                dictionary.deleteSlangWord(word);
+                deleteSlangWord(word);
                 System.out.println("[Message]: The slang word has been deleted.");
             } else {
                 System.out.println("[Message]: The slang word has not been deleted.");
@@ -162,14 +163,14 @@ public class SlangDictionaryUI {
     }
 
     // * Feature 7
-    private void resetSlangWords() {
+    private void feature7() {
         Utils.clearScreen();
         printTitle();
         System.out.println("Are you sure you want to reset the slang words to the default?");
         System.out.print("Please type \"yes\" to confirm: ");
         String confirm = scanner.nextLine();
         if (confirm.equalsIgnoreCase("yes")) {
-            dictionary.resetSlangWords();
+            feature7();
             System.out.println("[Message]: The slang words have been reset to the default.");
         } else {
             System.out.println("[Message]: The slang words have not been reset.");
@@ -178,38 +179,38 @@ public class SlangDictionaryUI {
     }
 
     // * Feature 8
-    private void randomSlangWord() {
+    private void feature8() {
         Utils.clearScreen();
         printTitle();
-        String key = (String) dictionary.randomSlangWord();
-        System.out.println("On this day slang word: " + key + " - " + dictionary.searchBySlangWord(key));
+        String key = (String) randomSlangWord();
+        System.out.println("On this day slang word: " + key + " - " + searchBySlangWord(key));
         Utils.pauseScreen();
     }
 
     // * Feature 9
-    public void quizGameSlangWord() {
+    public void feature9() {
         Utils.clearScreen();
         printTitle();
-        Object correctKey = dictionary.randomSlangWord();
+        Object correctKey = randomSlangWord();
         System.out.println("What is the meaning of the slang word: " + correctKey + "?");
     
         // Generate random answers
-        List<Object> answers = dictionary.getSlangWordQuiz(correctKey);
-        String correctAnswer = dictionary.searchBySlangWord(correctKey.toString());
+        List<Object> answers = getSlangWordQuiz(correctKey);
+        String correctAnswer = searchBySlangWord(correctKey.toString());
         answersHander(answers, correctAnswer);
         Utils.pauseScreen();
     }
 
     // * Feature 10
-    private void quizGameDefinition() {
+    private void feature10() {
         Utils.clearScreen();
         printTitle();
-        Object correctAnswer = dictionary.randomSlangWord();
-        Object correctValue = dictionary.searchBySlangWord(correctAnswer.toString());
+        Object correctAnswer = randomSlangWord();
+        Object correctValue = searchBySlangWord(correctAnswer.toString());
         System.out.println("What is the slang word of the definition: " + correctValue + "?");
         
         // Generate random answers
-        List<Object> answers = dictionary.getDefinitionQuiz(correctAnswer);
+        List<Object> answers = getDefinitionQuiz(correctAnswer);
         answersHander(answers,  correctAnswer.toString());
         Utils.pauseScreen();
     }
@@ -253,9 +254,5 @@ public class SlangDictionaryUI {
         System.out.println("                      __/ |                            ");
         System.out.println("                     |___/                             ");
         System.out.println("\n\n==========================================================\n");
-    }
-
-    public static void main(String[] args) {
-        new SlangDictionaryUI().start();
     }
 }
