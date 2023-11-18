@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import core.SlangDictionary;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 
 public class CLI extends SlangDictionary implements UI {
@@ -58,7 +58,7 @@ public class CLI extends SlangDictionary implements UI {
         printTitle();
         System.out.print("Enter definition: ");
         String definition = scanner.nextLine();
-        List<String> result = searchByDefinition(definition);
+        ArrayList<String> result = searchByDefinition(definition);
         if (result.isEmpty())
             System.out.println("[Message]: The search does not match any slang words");
         else {
@@ -195,7 +195,7 @@ public class CLI extends SlangDictionary implements UI {
         System.out.println("What is the meaning of the slang word: " + correctKey + "?");
     
         // Generate random answers
-        List<Object> answers = getSlangWordQuiz(correctKey);
+        ArrayList<Object> answers = getSlangWordQuiz(correctKey);
         String correctAnswer = searchBySlangWord(correctKey.toString());
         answersHander(answers, correctAnswer);
         Utils.pauseScreen();
@@ -210,12 +210,12 @@ public class CLI extends SlangDictionary implements UI {
         System.out.println("What is the slang word of the definition: " + correctValue + "?");
         
         // Generate random answers
-        List<Object> answers = getDefinitionQuiz(correctAnswer);
+        ArrayList<Object> answers = getDefinitionQuiz(correctAnswer);
         answersHander(answers,  correctAnswer.toString());
         Utils.pauseScreen();
     }
 
-    private void answersHander(List<Object> answers, String correctAnswer) {
+    private void answersHander(ArrayList<Object> answers, String correctAnswer) {
         Collections.shuffle(answers);
         for (int i = 0; i < answers.size(); i++)
             System.out.println((i + 1) + ". " + answers.get(i));

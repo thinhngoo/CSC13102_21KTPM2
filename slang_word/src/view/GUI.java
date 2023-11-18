@@ -4,8 +4,8 @@ import util.Utils;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -13,37 +13,33 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.util.ArrayList;
 
 import core.SlangDictionary;
 
 
 public class GUI extends SlangDictionary implements UI {
-    private enum MenuOptions {
-        SLANGDB(0), MODIFY(1), RESET_TO_DEFAULT(2), QUIZ(3), EXIT(4);
-        private final int value;
-        MenuOptions(int value) { this.value = value; }
-        public int value() { return value; }
-    }
-
     private JFrame frame;
     private JPanel mainPanel;
     private CardLayout cardLayout;
 
+    static final int WIDTH = 264;
+    static final int HEIGHT = 320;
     public GUI() {
         JFrame.setDefaultLookAndFeelDecorated(true);
         frame = new JFrame("Slang Dictionary");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 500);
+        frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
@@ -51,75 +47,31 @@ public class GUI extends SlangDictionary implements UI {
     }
 
     public void start() {
-        JPanel mainMenu = createMenu();
-        mainPanel.add(mainMenu, "mainMenu");
-
-        JPanel SlangDB = createSlangDB();
-        mainPanel.add(SlangDB, "SlangDB");
-
-        JPanel Modify = createModify();
-        mainPanel.add(Modify, "Modify");
-
-        JPanel Reset = createReset();
-        mainPanel.add(Reset, "Reset");
-
-        JPanel Quiz = createQuiz();
-        mainPanel.add(Quiz, "Quiz");
+        mainPanel.add(createMainMenu(), "mainMenu");
+        mainPanel.add(createSlangDB(), "SlangDB");
+        // mainPanel.add(createModify(), "Modify");
+        mainPanel.add(createReset(), "ResetDB");
+        mainPanel.add(createPractice(), "Practice");
 
         frame.add(mainPanel);
         frame.pack();
         Utils.log("Log: GUI started");
     }
 
-    private JPanel createMenu() {
+    static final int BUTTON_WIDTH = 120;
+    static final int BUTTON_HEIGHT = 30;
+    static final int PADDING_LR = 40;
+    static final int PADDING_TB = 15;
+    private JPanel createMainMenu() {
         ArrayList<String> mainMenuOptions = new ArrayList<>() {{
             add("SlangDB");
             add("Modify");
-            add("Reset to default");
-            add("Quiz");
+            add("ResetDB");
+            add("Practice");
             add("Exit");
         }};
 
-        ArrayList<JButton> buttons = new ArrayList<>();
-        for (String option : mainMenuOptions) {
-            JButton button = new JButton(option);
-            button.setMaximumSize(new Dimension(200, 50));
-            buttons.add(button);
-        }
-
-        buttons.get(MenuOptions.SLANGDB.value()).addActionListener( e -> {
-            Utils.log("Log: SlangDB pressed");
-            cardLayout.show(mainPanel, "SlangDB");
-        });
-        buttons.get(MenuOptions.MODIFY.value()).addActionListener(e -> {
-            Utils.log("Log: Modify pressed");
-            cardLayout.show(mainPanel, "Modify");
-        });
-        
-        buttons.get(MenuOptions.RESET_TO_DEFAULT.value()).addActionListener(e -> {
-            Utils.log("Log: Reset to default pressed");
-            cardLayout.show(mainPanel, "Reset");
-        });
-        
-        buttons.get(MenuOptions.QUIZ.value()).addActionListener(e -> {
-            Utils.log("Log: Quiz pressed");
-            cardLayout.show(mainPanel, "Quiz");
-        });
-        
-        buttons.get(MenuOptions.EXIT.value()).addActionListener(e -> {
-            Utils.log("Log: Exit pressed");
-            System.exit(0);
-        });
-
-        
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-        panel.setBackground(Color.WHITE);
-        for (JButton button : buttons) {
-            panel.add(button);
-            panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        }
-        return panel;
+        return createMenu(mainMenuOptions, "Slang Dictionary");
     }
 
     private JPanel createSlangDB() {
@@ -173,78 +125,205 @@ public class GUI extends SlangDictionary implements UI {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-        JLabel label = new JLabel("This action CANNOT be undone. This will permanently reset all your data.");
-        panel.add(label);
-        JLabel label1 = new JLabel("Please type 'yes' to confirm.");
-        panel.add(label1);
+        JLabel warning = new JLabel("<html>This action CANNOT be undone. This will permanently reset all your data.</html>");
+        warning.setAlignmentX(Component.CENTER_ALIGNMENT);
+        warning.setBorder(new EmptyBorder(10, 5, 20, 5));
+        panel.add(warning);
+        JLabel confirm = new JLabel("Please type 'yes' to confirm.");
+        confirm.setAlignmentX(Component.CENTER_ALIGNMENT);
+        confirm.setBorder(new EmptyBorder(0, 0, 5, 0));
+        panel.add(confirm);
 
-        JTextField textField = new JTextField();
-        panel.add(textField);
+        int txtBoxWidth = WIDTH - 24;
+        int txtBoxHeight = 28;
+        JTextField confirmText = new JTextField();
+        confirmText.setSize(new Dimension(txtBoxWidth, txtBoxHeight));
+        confirmText.setMinimumSize(new Dimension(txtBoxWidth, txtBoxHeight));
+        confirmText.setMaximumSize(new Dimension(txtBoxWidth, txtBoxHeight));
+        confirmText.setPreferredSize(new Dimension(txtBoxWidth, txtBoxHeight));
+        panel.add(confirmText);
 
         JPanel buttonPanel = new JPanel();
-        JButton button1 = new JButton("Confirm");
-        button1.addActionListener(e -> {
-            String text = textField.getText();
-            if (text.equalsIgnoreCase("yes")) {
+        buttonPanel.setBorder(new EmptyBorder(12, 0, 0, 0));
+        JButton confirmBtn = new JButton("Confirm");
+        confirmBtn.setPreferredSize(new Dimension(80, 32));
+        confirmBtn.addActionListener(e -> {
+            String inputText = confirmText.getText();
+            if (inputText.equalsIgnoreCase("yes")) {
                 resetSlangWords();
-                JOptionPane.showMessageDialog(frame, "Hello, Welcome to Javatpoint.");  
+                confirmText.setText("");
+                JOptionPane.showMessageDialog(frame, "Reset Completed!"); 
+                cardLayout.show(mainPanel, "mainMenu");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Wrong input. Please type 'yes' to confirm.", "Alert", JOptionPane.WARNING_MESSAGE); 
             }
         });
 
-        JButton button2 = new JButton("Back");
-        button2.addActionListener(e -> {
+        JButton backBtn = new JButton("Back");
+        backBtn.setPreferredSize(new Dimension(80, 32));
+        backBtn.addActionListener(e -> {
+            confirmText.setText("");
             cardLayout.show(mainPanel, "mainMenu");
         });
-        buttonPanel.add(button1);
-        buttonPanel.add(button2);
+        buttonPanel.add(confirmBtn);
+        buttonPanel.add(backBtn);
 
         panel.add(buttonPanel);
         return panel;
     }
 
-    private JPanel createQuiz() {
-        JPanel questionPanel = new JPanel();
-        questionPanel.setLayout(new BoxLayout(questionPanel, BoxLayout.PAGE_AXIS));
+    private JPanel createPractice() {
+        ArrayList<String> options = new ArrayList<>() {{
+            add("Random Slang");
+            add("Word Quiz");
+            add("Definition Quiz");
+            add("Back");
+        }};
 
-        // Create the question label
-        JLabel questionLabel = new JLabel("What is the capital of France?");
-        // questionLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        questionPanel.add(questionLabel);
+        mainPanel.add(createRandomSlang(), "Random Slang");
+        mainPanel.add(createQuiz("word"), "Word Quiz");
+        mainPanel.add(createQuiz("def"), "Definition Quiz");
+        
+        return createMenu(options, "Practice");
+    }
 
-        // Create the answer choices
+    private JPanel createRandomSlang() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+
+        JLabel slangLabel = new JLabel("On this day slang word: " + randomSlangWord());
+        slangLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        slangLabel.setBorder(new EmptyBorder(24, 5, 0, 5));
+        panel.add(slangLabel);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBorder(new EmptyBorder(12, 0, 0, 0));
+        JButton renewBtn = new JButton("Renew");
+        renewBtn.setPreferredSize(new Dimension(80, 32));
+        renewBtn.addActionListener(e -> {
+            slangLabel.setText("On this day slang word: " + randomSlangWord());
+        });
+
+        JButton backBtn = new JButton("Back");
+        backBtn.setPreferredSize(new Dimension(80, 32));
+        backBtn.addActionListener(e -> {
+            cardLayout.show(mainPanel, "Practice");
+        });
+        buttonPanel.add(renewBtn);
+        buttonPanel.add(backBtn);
+        panel.add(buttonPanel);
+
+        return panel;
+    }
+
+    private String question = "";
+    private String answer = "";
+    private JPanel createQuiz(String type) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        
+        JLabel questionLabel = new JLabel();
+        questionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        questionLabel.setBorder(new EmptyBorder(24, 16, 0, 5));
+        questionLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        panel.add(questionLabel);
+
+        if (type.equals("word")) {
+            questionLabel.setText("<html>What is the word " + question + " short for?<html>");
+        } else {
+            questionLabel.setText("<html>What is the short for " + question + " ?<html>");
+        }
+        ArrayList<Object> answers = new ArrayList<>(getSlangWordQuiz(answer));
+
+        ButtonGroup btnGroup = new ButtonGroup();
         JRadioButton[] answerChoices = new JRadioButton[4];
         for (int i = 0; i < answerChoices.length; i++) {
-            answerChoices[i] = new JRadioButton("Answer " + (i + 1));
-            questionPanel.add(answerChoices[i]);
+            answerChoices[i] = new JRadioButton("Temp");
+            answerChoices[i].setAlignmentX(Component.LEFT_ALIGNMENT);
+            answerChoices[i].setBorder(new EmptyBorder(8, 16, 0, 0));
+            panel.add(answerChoices[i]);
+            btnGroup.add(answerChoices[i]);
+        }
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBorder(new EmptyBorder(12, 0, 0, 0));
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JButton submitBtn = new JButton("Submit");
+        submitBtn.setPreferredSize(new Dimension(80, 32));
+        submitBtn.addActionListener(e -> {
+            String selectedAnswer = null;
+            for (JRadioButton answerChoice : answerChoices) {
+                if (answerChoice.isSelected()) {
+                    selectedAnswer = answerChoice.getText();
+                    break;
+                }
+            }
+    
+            if (selectedAnswer != null) {
+                if (selectedAnswer.equals(answer)) {
+                    JOptionPane.showMessageDialog(null, "Correct!");
+                    cardLayout.show(mainPanel, "Practice");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Incorrect. The correct answer is " + answer + ".");
+                    cardLayout.show(mainPanel, "Practice");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Please select an answer.");
+            }
+        });
+
+        JButton backBtn = new JButton("Back");
+        backBtn.setPreferredSize(new Dimension(80, 32));
+        backBtn.addActionListener(e -> {
+            cardLayout.show(mainPanel, "Practice");
+        });
+        buttonPanel.add(submitBtn);
+        buttonPanel.add(backBtn);
+        panel.add(buttonPanel);
+        return panel;
+    }
+
+    private JPanel createMenu(ArrayList<String> menuOptions, String title) {
+        ArrayList<JButton> buttons = new ArrayList<>();
+        for (String option : menuOptions) {
+            JButton button = new JButton(option);
+            button.setMaximumSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            buttons.add(button);
         }
 
-        // Create the submit button
-        JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(e -> {
-            // @Override
-            // public void actionPerformed(ActionEvent e) {
-            //     // Check the selected answer
-            //     String selectedAnswer = null;
-            //     for (JRadioButton answerChoice : answerChoices) {
-            //         if (answerChoice.isSelected()) {
-            //             selectedAnswer = answerChoice.getText();
-            //             break;
-            //         }
-            //     }
-
-            //     // Display a message based on the selected answer
-            //     if (selectedAnswer != null) {
-            //         if (selectedAnswer.equals("Answer 3")) {
-            //             JOptionPane.showMessageDialog(null, "Correct!");
-            //         } else {
-            //             JOptionPane.showMessageDialog(null, "Incorrect. The correct answer is Answer 3.");
-            //         }
-            //     } else {
-            //         JOptionPane.showMessageDialog(null, "Please select an answer.");
-            //     }
-            // }
+        for (int i = 0; i < buttons.size() - 1; i++) {
+            String option = menuOptions.get(i);
+            buttons.get(i).addActionListener( e -> {
+                Utils.log("Log: " + option + " pressed");
+                cardLayout.show(mainPanel, option);
+            });
+        }
+        
+        
+        buttons.get(buttons.size() - 1).addActionListener(e -> {
+            if (menuOptions.get(menuOptions.size() - 1).equals("Exit")) {
+                Utils.log("Log: Exit pressed");
+                System.exit(0);
+            } else {
+                Utils.log("Log: Back pressed");
+                cardLayout.show(mainPanel, "mainMenu");
+            }
         });
-        questionPanel.add(submitButton, BorderLayout.SOUTH);
-        return questionPanel;
+
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.setBorder(new EmptyBorder(PADDING_TB, PADDING_LR, PADDING_TB, PADDING_LR));
+        JLabel label = new JLabel(title);
+        label.setBorder(new EmptyBorder(10, 0, 20, 0));
+        label.setFont(new Font("Arial", Font.PLAIN, 20));
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
+        for (JButton button : buttons) {
+            panel.add(button);
+            panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+        return panel;
     }
 }

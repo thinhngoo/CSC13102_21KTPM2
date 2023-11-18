@@ -1,7 +1,6 @@
 package core;
 
 import java.util.Map;
-import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -94,8 +93,8 @@ public class SlangDictionary {
     }
 
     // * Feature 2
-    protected List<String> searchByDefinition(String keyword) {
-        List<String> matchingWords = new ArrayList<>();
+    protected ArrayList<String> searchByDefinition(String keyword) {
+        ArrayList<String> matchingWords = new ArrayList<>();
         for (Map.Entry<String, String> entry : slangWords.entrySet())
             if (entry.getValue().contains(keyword))
                 matchingWords.add(entry.getKey());
@@ -104,7 +103,7 @@ public class SlangDictionary {
     }
 
     // * Feature 3
-    protected List<String> getSearchHistory() { return new ArrayList<>(searchHistory); }
+    protected ArrayList<String> getSearchHistory() { return new ArrayList<>(searchHistory); }
 
     // * Feature 4
     protected void addSlangWord(String word, String meaning) { slangWords.put(word, meaning); }
@@ -126,9 +125,9 @@ public class SlangDictionary {
     }
 
     // * Feature 9
-    protected List<Object> getSlangWordQuiz(Object correctAnswer) {
+    protected ArrayList<Object> getSlangWordQuiz(Object correctAnswer) {
         Object[] keys = slangWords.keySet().toArray();
-        List<Object> answers = new ArrayList<>();
+        ArrayList<Object> answers = new ArrayList<>();
         answers.add(slangWords.get(correctAnswer));
         while (answers.size() < 4) {
             Object randomKey = keys[new Random().nextInt(keys.length)];
@@ -140,13 +139,13 @@ public class SlangDictionary {
     }
 
     // Feature 10
-    protected List<Object> getDefinitionQuiz(Object correctAnswer) {
-        List<Object> answers = new ArrayList<>();
+    protected ArrayList<Object> getDefinitionQuiz(Object correctAnswer) {
+        ArrayList<Object> answers = new ArrayList<>();
         answers.add(correctAnswer.toString());
         while (answers.size() < 4) {
             Object randomDefinition = slangWords.get(randomSlangWord());
             if (!answers.contains(randomDefinition)) {
-                List<String> matchingWords = searchByDefinition(randomDefinition.toString());
+                ArrayList<String> matchingWords = searchByDefinition(randomDefinition.toString());
                 answers.add(searchByDefinition(randomDefinition.toString()).get(new Random().nextInt(matchingWords.size())));
             }
         }
