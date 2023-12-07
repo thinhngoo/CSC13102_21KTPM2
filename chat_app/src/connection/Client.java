@@ -23,7 +23,7 @@ public class Client {
     }
 
     public static void main(String[] args) throws UnknownHostException, IOException {
-        Client client = new Client("localhost", "Con ca", 5000);
+        Client client = new Client("localhost", "admin", 5000);
         client.connect();
     }
 
@@ -36,6 +36,7 @@ public class Client {
             Logger.log("info", "Connected to server " + serverName + " on port " + port, System.getProperty("user.dir"));
 
             output.println(clientName);
+            output.println("2");
             // thread = new Thread(new ReceivedMessagesHandler(client.getInputStream()));
             server.close();
         } catch (IOException e) {

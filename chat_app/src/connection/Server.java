@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.io.*;
 import java.net.*;
 
+import middleware.*;
+import constant.*;
 import util.Logger;
 
 public class Server {
@@ -32,8 +34,18 @@ public class Server {
             Scanner sc = new Scanner(client.getInputStream());
 
             String nickname = sc.nextLine();
+            String password = sc.nextLine();
             Logger.log("info", "New Client \"" + nickname + "\" - "+ client.getInetAddress().getHostAddress() + " connected.", System.getProperty("user.dir"));
         
+            Schema.User connectUser = new Schema.User(nickname, password);
+            Model.UserDB userDB = new Model.UserDB();
+            List<Schema.User> users = userDB.getUsers();
+            if (Authentication.isUserExist(users, connectUser.getUsername())) {
+                Logger.log("info", "User \"" + nickname + "\" is exist.", System.getProperty("user.dir"));
+            } else {
+                Logger.log("info", "User \"" + nickname + "\" is not exist.", System.getProperty("user.dir"));
+            }
+
             User user = new User(client, nickname);
             this.clients.add(user);
 
