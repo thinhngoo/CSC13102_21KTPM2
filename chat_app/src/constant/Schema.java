@@ -12,25 +12,41 @@ public class Schema {
             this.username = username;
             this.password = password;
             this.email = email;
-            if (role.equals("*")) {
-                this.role = "admin";
-            } else {
-                this.role = "user";
-            }
+            this.role = "admin";
+        }
+
+        public User(String username, String password, String email) {
+            this.username = username;
+            this.password = password;
+            this.email = email;
+            this.role = "user";
         }
 
         public User(String username, String password) {
             this.username = username;
             this.password = password;
+            this.email = "";
+            this.role = "user";
         }
     
         public String getUsername() {
             return this.username;
         }
-    
-        public String toString() {
-            return "Username: " + this.username + "\nPassword: " + this.password + "\nEmail: " + this.email + "\nRole: "
-                    + this.role;
+
+        public String getPassword() {
+            return this.password;
+        }
+
+        public String getEmail() {
+            return this.email;
+        }
+
+        public boolean isUsernameMatch(String providedUsername) {
+            return this.username.equals(providedUsername);
+        }
+
+        public boolean isPasswordMatch(String providedPassword) {
+            return this.password.equals(providedPassword);
         }
     }
 }

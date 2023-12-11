@@ -8,17 +8,18 @@ import java.net.*;
 
 import middleware.*;
 import constant.*;
-import util.Logger;
+import constant.Schema.User;
+import util.*;
 
 public class Server {
 
     private int port;
-    private List<User> clients;
+    private List<UserClient> clients;
     private ServerSocket server;
 
     public Server(int port) {
         this.port = port;
-        this.clients = new ArrayList<User>();
+        this.clients = new ArrayList<UserClient>();
     }
 
     public void run() throws IOException {
@@ -27,75 +28,162 @@ public class Server {
                 this.close();
             }
         };
-        Logger.log("info", "Port " + port + " is now open.", System.getProperty("user.dir"));
+        Logger.log("info", "Port " + port + " is now open", "Server.java");
 
         while (true) {
-            Socket client = server.accept();
-            Scanner sc = new Scanner(client.getInputStream());
-
-            String nickname = sc.nextLine();
-            String password = sc.nextLine();
-            Logger.log("info", "New Client \"" + nickname + "\" - "+ client.getInetAddress().getHostAddress() + " connected.", System.getProperty("user.dir"));
-        
-            Schema.User connectUser = new Schema.User(nickname, password);
-            Model.UserDB userDB = new Model.UserDB();
-            List<Schema.User> users = userDB.getUsers();
-            if (Authentication.isUserExist(users, connectUser.getUsername())) {
-                Logger.log("info", "User \"" + nickname + "\" is exist.", System.getProperty("user.dir"));
-            } else {
-                Logger.log("info", "User \"" + nickname + "\" is not exist.", System.getProperty("user.dir"));
+            Socket client = null;
+            try {
+                client = server.accept();
+                new Thread(new ClientHandler(this, client)).start();
             }
-
-            User user = new User(client, nickname);
-            this.clients.add(user);
-
-            // new Thread(new UserHandler(this, user)).start();
-            sc.close();
+            catch (Exception e) {
+                client.close();
+                Logger.log("error", e.getMessage(), "Server.java");
+            }
         }
     }
 
-    public void removeUser(User user) {
+    public void addUser(UserClient user) {
+        this.clients.add(user);
+    }
+
+    public void removeUser(UserClient user) {
         this.clients.remove(user);
     }
 }
 
-class UserHandler implements Runnable {
-    
-    private Server server;
-    private User user;
+class ClientHandler implements Runnable {
 
-    public UserHandler(Server server, User user) {
+    private Server server;
+    private Socket client;
+    private UserClient user;
+
+    public ClientHandler(Server server, Socket client) throws IOException {
         this.server = server;
-        this.user = user;
+        this.client = client;
     }
 
+    @Override
     public void run() {
-        String message;
-        server.removeUser(this.user);
+        accountSync();
+        // UserClient user = new UserClient(client, nickname);
+        // server.clients.add(user);
+
+        // String message;
+        // Scanner sc = new Scanner(this.user.getInStream());
+        // Logger.log("info", "User " + this.user.isConnected() + " is connected.", "Server.java");
+        // while (sc.hasNextLine()) {
+        //     message = sc.nextLine();
+        //     Logger.log("info", "User " + user.toString() + " send message: " + message, "Server.java");
+        // }
+    }
+
+    private void accountSync() {
+        try {
+            Scanner input = new Scanner(client.getInputStream());
+            PrintStream output = new PrintStream(client.getOutputStream());
+            Model.UserDB userDB = new Model.UserDB();
+            List<Schema.User> users = userDB.getUsers();
+
+            boolean run = true;
+            while (run) {
+                String mode = input.nextLine();
+                switch (mode) {
+                    case Term.User.LOGIN: {
+                        String username = input.nextLine();
+                        String password = input.nextLine();
+                        if (Authentication.isUserExist(users, username)) {
+                            Logger.log("info", "User " + username + " is exist", "Server.java");
+                            Schema.User tempUser = new Schema.User(username, password);
+                            if (Authentication.isPasswordMatch(users, tempUser)) {
+                                Logger.log("info", "User " + username + "'s password is match", "Server.java");
+                                user = new UserClient(client, tempUser);
+                                server.addUser(user);
+                                output.println(Term.StatusCode.SUCCESS);
+                                run = false;
+                                Logger.log("info", "User " + username + " is connected", "Server.java");
+                            } else {
+                                output.println(Term.StatusCode.FAILED);
+                                Logger.log("info", "User " + username + "'s password is not match", "Server.java");
+                            }
+                        } else {
+                            output.println(Term.StatusCode.FAILED);
+                            Logger.log("info", "User " + username + " is not exist", "Server.java");
+                        }
+                        break;
+                    }
+
+                    case Term.User.REGISTER: {
+                        String username = input.nextLine();
+                        String password = input.nextLine();
+                        String email = input.nextLine();
+                        if (Authentication.isUserExist(users, username)) {
+                            output.println(Term.StatusCode.FAILED);
+                            Logger.log("info", "User " + username + " is exist", "Server.java");
+                        } else {
+                            Schema.User tempUser = new Schema.User(username, password, email);
+                            user = new UserClient(client, tempUser);
+                            server.addUser(user);
+                            userDB.addUser(tempUser);
+                            output.println(Term.StatusCode.SUCCESS);
+                            run = false;
+                            Logger.log("info", "User " + username + " is registered", "Server.java");
+                        }
+                        break;
+                    }
+                            
+                    default:
+                        break;
+                }
+            }
+            input = null;
+        }
+        catch (Exception e) {
+            Logger.log("error", e.getMessage(), "Server.java");
+        }
     }
 }
 
-/**
- * User
- */
-class User {
+class UserClient {
 
     private static int userTotal = 0;
     private int id;
-    private String nickname;
-    private String color;
+    private Schema.User user;
     private Socket client;
     private PrintStream outStream;
     private InputStream inStream;
 
-    public User(Socket client, String nickname) throws IOException {
+    public UserClient(Socket client, Schema.User user) throws IOException {
         ++userTotal;
         this.id = 0;
-        this.nickname = nickname;
-        this.color = "black";
+        this.user = user;
 
         this.client = client;
         this.outStream = new PrintStream(client.getOutputStream());
         this.inStream = client.getInputStream();
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public Socket getClient() {
+        return this.client;
+    }
+
+    public PrintStream getOutStream() {
+        return this.outStream;
+    }
+
+    public InputStream getInStream() {
+        return this.inStream;
+    }
+
+    public void closeConnection() {
+        try {
+            this.client.close();
+        } catch (IOException e) {
+            Logger.log("error", e.getMessage(), "Server.java");
+        }
     }
 }
