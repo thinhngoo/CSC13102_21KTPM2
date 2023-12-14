@@ -7,11 +7,11 @@ import java.awt.event.ActionListener;
 import java.util.Scanner;
 import java.io.PrintStream;
 
-import util.Logger;
 import javax.swing.border.EmptyBorder;
 
 import connection.*;
 import constant.*;
+import util.*;
 
 public class GUI extends JFrame {
     private Client client;
@@ -19,85 +19,71 @@ public class GUI extends JFrame {
     private void setup() {
         client = new Client("localhost", Term.Init.PORT);
         client.run();
-        System.out.println(Thread.currentThread().getName());
 
         setTitle("Yahuu!");
         setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        Logger.log("info", "Set up GUI", "GUI.java");
-
         setLayout(new CardLayout());
+        Logger.log("info", "Set up GUI", "GUI.java");
     }
 
     private void exit() {
         setVisible(true);
-        Logger.log("info", "Exit GUI", "GUI.java");
     }
 
     public GUI() {
         setup();
-        
+
         add(createLoginPanel(), "Login");
         add(createRegisterPanel(), "Register");
-        add(createChatPanel(), "Chat");        
-        // Show login page by default
+        add(createChatPanel(), "Chat");
+
         ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Login");
         exit();
     }
-    
-    
+
     private JTextField loginUsernameField;
     private JPasswordField loginPasswordField;
+
     private JPanel createLoginPanel() {
         JPanel loginPanel = new JPanel();
         loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.PAGE_AXIS));
 
         // Title
-        JLabel titleLabel = new JLabel("Yahuu!");
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 30));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setBorder(new EmptyBorder(50, 48, 50, 48));
+        JLabel titleLabel = JFrameCreator.Label("Yahuu!", "Serif", Font.BOLD, 30, Component.CENTER_ALIGNMENT,
+                new EmptyBorder(50, 48, 50, 48));
         loginPanel.add(titleLabel);
 
         // Username
-        JPanel usernamePanel = new JPanel();
-        usernamePanel.setMaximumSize(new Dimension(400, 52));
-        usernamePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel usernameLabel = new JLabel("Username: ");
-        usernameLabel.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
-        usernamePanel.add(usernameLabel);
+        JPanel usernamePanel = JFrameCreator.Form(new Dimension(400, 52), Component.CENTER_ALIGNMENT, "Username: ");
         loginUsernameField = new JTextField();
         loginUsernameField.setColumns(20);
-        loginUsernameField.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
+        loginUsernameField
+                .setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
         usernamePanel.add(loginUsernameField);
         loginPanel.add(usernamePanel);
 
         // Password
-        JPanel passwordPanel = new JPanel();
-        passwordPanel.setMaximumSize(new Dimension(400, 52));
-        passwordPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel passwordLabel = new JLabel("Password: ");
-        passwordLabel.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
-        passwordPanel.add(passwordLabel);
+        JPanel passwordPanel = JFrameCreator.Form(new Dimension(400, 52), Component.CENTER_ALIGNMENT, "Password: ");
         loginPasswordField = new JPasswordField();
         loginPasswordField.setColumns(20);
-        loginPasswordField.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
+        loginPasswordField
+                .setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
         passwordPanel.add(loginPasswordField);
         loginPanel.add(passwordPanel);
-        
+
         // Buttons
         JPanel btnPanel = new JPanel();
-        btnPanel.setBorder(new EmptyBorder(Unit.LARGE_SIZE*2, 0, 0, 0));
-        
-        JButton loginButton = new JButton("Login");
-        loginButton.setPreferredSize(new Dimension(Unit.LARGE_SIZE*6, Unit.LARGE_SIZE*2));
+        btnPanel.setBorder(new EmptyBorder(Unit.LARGE_SIZE * 2, 0, 0, 0));
+
+        JButton loginButton = JFrameCreator.Button("Login", new Dimension(Unit.LARGE_SIZE * 6, Unit.LARGE_SIZE * 2));
         loginButton.addActionListener(new LoginButtonListener());
         btnPanel.add(loginButton);
 
-        JButton registerButton = new JButton("Register");
-        registerButton.setPreferredSize(new Dimension(Unit.LARGE_SIZE*6, Unit.LARGE_SIZE*2));
-        registerButton.addActionListener(new RegisterButtonListener());
+        JButton registerButton = JFrameCreator.Button("Register",
+                new Dimension(Unit.LARGE_SIZE * 6, Unit.LARGE_SIZE * 2));
+        registerButton.addActionListener(new DirectToRegister());
         btnPanel.add(registerButton);
         loginPanel.add(btnPanel);
 
@@ -106,70 +92,56 @@ public class GUI extends JFrame {
 
     private JTextField registerUsernameField;
     private JPasswordField registerPasswordField;
-    private JPasswordField registerEmailField;
+    private JTextField registerEmailField;
+
     private JPanel createRegisterPanel() {
         JPanel registerPanel = new JPanel();
         registerPanel.setLayout(new BoxLayout(registerPanel, BoxLayout.PAGE_AXIS));
 
         // Title
-        JLabel titleLabel = new JLabel("Yahuu!");
-        titleLabel.setFont(new Font("Serif", Font.BOLD, 30));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setBorder(new EmptyBorder(50, 48, 50, 48));
+        JLabel titleLabel = JFrameCreator.Label("Yahuu!", "Serif", Font.BOLD, 30, Component.CENTER_ALIGNMENT,
+                new EmptyBorder(50, 48, 50, 48));
         registerPanel.add(titleLabel);
 
         // Username
-        JPanel usernamePanel = new JPanel();
-        usernamePanel.setMaximumSize(new Dimension(400, 52));
-        usernamePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel usernameLabel = new JLabel("Username: ");
-        usernameLabel.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
-        usernamePanel.add(usernameLabel);
+        JPanel usernamePanel = JFrameCreator.Form(new Dimension(400, 52), Component.CENTER_ALIGNMENT, "Username: ");
         registerUsernameField = new JTextField();
         registerUsernameField.setColumns(20);
-        registerUsernameField.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
+        registerUsernameField
+                .setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
         usernamePanel.add(registerUsernameField);
         registerPanel.add(usernamePanel);
 
         // Email
-        JPanel emailPanel = new JPanel();
-        emailPanel.setMaximumSize(new Dimension(400, 52));
-        emailPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel emailLabel = new JLabel("Email:          ");
-        emailLabel.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
-        emailPanel.add(emailLabel);
-        registerEmailField = new JPasswordField();
+        JPanel emailPanel = JFrameCreator.Form(new Dimension(400, 52), Component.CENTER_ALIGNMENT, "Email:    ");
+        registerEmailField = new JTextField();
         registerEmailField.setColumns(20);
-        registerEmailField.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
+        registerEmailField
+                .setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
         emailPanel.add(registerEmailField);
         registerPanel.add(emailPanel);
 
         // Password
-        JPanel passwordPanel = new JPanel();
-        passwordPanel.setMaximumSize(new Dimension(400, 52));
-        passwordPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel passwordLabel = new JLabel("Password: ");
-        passwordLabel.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
-        passwordPanel.add(passwordLabel);
+        JPanel passwordPanel = JFrameCreator.Form(new Dimension(400, 52), Component.CENTER_ALIGNMENT, "Password: ");
         registerPasswordField = new JPasswordField();
         registerPasswordField.setColumns(20);
-        registerPasswordField.setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
+        registerPasswordField
+                .setBorder(new EmptyBorder(Unit.MEDIUM_SIZE, Unit.SMALL_SIZE, Unit.MEDIUM_SIZE, Unit.SMALL_SIZE));
         passwordPanel.add(registerPasswordField);
         registerPanel.add(passwordPanel);
-        
+
         // Buttons
         JPanel btnPanel = new JPanel();
-        btnPanel.setBorder(new EmptyBorder(Unit.LARGE_SIZE*2, 0, 0, 0));
-        
-        JButton loginButton = new JButton("Login");
-        loginButton.setPreferredSize(new Dimension(Unit.LARGE_SIZE*6, Unit.LARGE_SIZE*2));
-        loginButton.addActionListener(new LoginButtonListener());
-        btnPanel.add(loginButton);
+        btnPanel.setBorder(new EmptyBorder(Unit.LARGE_SIZE * 2, 0, 0, 0));
 
-        JButton registerButton = new JButton("Register");
-        registerButton.setPreferredSize(new Dimension(Unit.LARGE_SIZE*6, Unit.LARGE_SIZE*2));
+        JButton registerButton = JFrameCreator.Button("Register",
+                new Dimension(Unit.LARGE_SIZE * 6, Unit.LARGE_SIZE * 2));
         registerButton.addActionListener(new RegisterButtonListener());
         btnPanel.add(registerButton);
+
+        JButton loginButton = JFrameCreator.Button("Login", new Dimension(Unit.LARGE_SIZE * 6, Unit.LARGE_SIZE * 2));
+        loginButton.addActionListener(new DirectToLogin());
+        btnPanel.add(loginButton);
         registerPanel.add(btnPanel);
 
         return registerPanel;
@@ -187,39 +159,76 @@ public class GUI extends JFrame {
                 return;
             }
             String mode = Term.User.LOGIN;
-                
+
             output.println(mode);
             output.println(loginUsernameField.getText());
             output.println(new String(loginPasswordField.getPassword()));
 
-            // String tmp = input.nextLine();
-            // if (tmp.equals(Term.StatusCode.SUCCESS)) {
-            //     System.out.println("Login success");
-            // } else {
-            //     System.out.println("Login failed");
-            // }
-                    
-            ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Register");
+            String tmp = input.nextLine();
+            if (tmp.equals(Term.StatusCode.SUCCESS)) {
+                Logger.log("info", "Login success", "GUI.java");
+                ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Chat");
+            } else {
+                Logger.log("info", "Login failed", "GUI.java");
+            }
         }
     }
 
     private class RegisterButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            // String username = registerUsernameField.getText();
-            // String password = new String(registerPasswordField.getPassword());
-            // System.out.println(username);
-            // System.out.println(password);
-            ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Login");
+            Scanner input;
+            PrintStream output;
+            try {
+                input = new Scanner(client.getInStream());
+                output = new PrintStream(client.getOutStream());
+            } catch (Exception ex) {
+                Logger.log("error", ex.getMessage(), "GUI.java");
+                return;
+            }
+            String mode = Term.User.REGISTER;
+
+            output.println(mode);
+            output.println(registerUsernameField.getText());
+            output.println(new String(registerPasswordField.getPassword()));
+            output.println(new String(registerEmailField.getText()));
+
+            String tmp = input.nextLine();
+            if (tmp.equals(Term.StatusCode.SUCCESS)) {
+                Logger.log("info", "Register success", "GUI.java");
+            } else {
+                Logger.log("info", "Register failed", "GUI.java");
+            }
         }
     }
 
+    private class DirectToRegister implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Register");
+        }
+    }
+    private class DirectToLogin implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Login");
+        }
+    }
     private JPanel createChatPanel() {
-        JPanel chatPanel = new JPanel();
-        chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.PAGE_AXIS));
+        JPanel chatPanel = new JPanel(new BorderLayout());
+        
+        JTextArea chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatPanel.add(chatArea, BorderLayout.CENTER);
+
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        JTextField inputField = new JTextField();
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        JButton sendButton = new JButton("Send");
+        inputPanel.add(sendButton, BorderLayout.EAST);
+        chatPanel.add(inputPanel, BorderLayout.SOUTH);
+        
         return chatPanel;
     }
 
     public static void main(String[] args) {
-        new GUI();
+        new GUI().setVisible(true);
     }
 }

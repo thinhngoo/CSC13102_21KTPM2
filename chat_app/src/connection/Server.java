@@ -8,7 +8,6 @@ import java.net.*;
 
 import middleware.*;
 import constant.*;
-import constant.Schema.User;
 import util.*;
 
 public class Server {
@@ -35,8 +34,7 @@ public class Server {
             try {
                 client = server.accept();
                 new Thread(new ClientHandler(this, client)).start();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 client.close();
                 Logger.log("error", e.getMessage(), "Server.java");
             }
@@ -66,15 +64,18 @@ class ClientHandler implements Runnable {
     @Override
     public void run() {
         accountSync();
+        chatHandle();
         // UserClient user = new UserClient(client, nickname);
         // server.clients.add(user);
 
         // String message;
         // Scanner sc = new Scanner(this.user.getInStream());
-        // Logger.log("info", "User " + this.user.isConnected() + " is connected.", "Server.java");
+        // Logger.log("info", "User " + this.user.isConnected() + " is connected.",
+        // "Server.java");
         // while (sc.hasNextLine()) {
-        //     message = sc.nextLine();
-        //     Logger.log("info", "User " + user.toString() + " send message: " + message, "Server.java");
+        // message = sc.nextLine();
+        // Logger.log("info", "User " + user.toString() + " send message: " + message,
+        // "Server.java");
         // }
     }
 
@@ -88,6 +89,7 @@ class ClientHandler implements Runnable {
             boolean run = true;
             while (run) {
                 String mode = input.nextLine();
+                String returnCode = Term.StatusCode.FAILED;
                 switch (mode) {
                     case Term.User.LOGIN: {
                         String username = input.nextLine();
@@ -99,15 +101,13 @@ class ClientHandler implements Runnable {
                                 Logger.log("info", "User " + username + "'s password is match", "Server.java");
                                 user = new UserClient(client, tempUser);
                                 server.addUser(user);
-                                output.println(Term.StatusCode.SUCCESS);
+                                returnCode = Term.StatusCode.SUCCESS;
                                 run = false;
                                 Logger.log("info", "User " + username + " is connected", "Server.java");
                             } else {
-                                output.println(Term.StatusCode.FAILED);
                                 Logger.log("info", "User " + username + "'s password is not match", "Server.java");
                             }
                         } else {
-                            output.println(Term.StatusCode.FAILED);
                             Logger.log("info", "User " + username + " is not exist", "Server.java");
                         }
                         break;
@@ -131,15 +131,20 @@ class ClientHandler implements Runnable {
                         }
                         break;
                     }
-                            
+
                     default:
                         break;
                 }
+                output.println(returnCode);
             }
             input = null;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Logger.log("error", e.getMessage(), "Server.java");
+        }
+    }
+    private void chatHandle() {
+        while(true) {
+            
         }
     }
 }
@@ -147,6 +152,11 @@ class ClientHandler implements Runnable {
 class UserClient {
 
     private static int userTotal = 0;
+
+    public static int getUserTotal() {
+        return userTotal;
+    }
+
     private int id;
     private Schema.User user;
     private Socket client;
