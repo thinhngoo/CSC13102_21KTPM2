@@ -4,14 +4,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Scanner;
+import java.io.PrintStream;
 
 import util.Logger;
 import javax.swing.border.EmptyBorder;
 
+import connection.*;
 import constant.*;
 
 public class GUI extends JFrame {
+    private Client client;
+
     private void setup() {
+        client = new Client("localhost", Term.Init.PORT);
+        client.run();
+        System.out.println(Thread.currentThread().getName());
+
         setTitle("Yahuu!");
         setSize(500, 500);
         setLocationRelativeTo(null);
@@ -33,7 +42,7 @@ public class GUI extends JFrame {
         add(createRegisterPanel(), "Register");
         add(createChatPanel(), "Chat");        
         // Show login page by default
-        ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Register");
+        ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Login");
         exit();
     }
     
@@ -168,10 +177,28 @@ public class GUI extends JFrame {
 
     private class LoginButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            // String username = loginUsernameField.getText();
-            // String password = new String(loginPasswordField.getPassword());
-            // System.out.println(username);
-            // System.out.println(password);
+            Scanner input;
+            PrintStream output;
+            try {
+                input = new Scanner(client.getInStream());
+                output = new PrintStream(client.getOutStream());
+            } catch (Exception ex) {
+                Logger.log("error", ex.getMessage(), "GUI.java");
+                return;
+            }
+            String mode = Term.User.LOGIN;
+                
+            output.println(mode);
+            output.println(loginUsernameField.getText());
+            output.println(new String(loginPasswordField.getPassword()));
+
+            // String tmp = input.nextLine();
+            // if (tmp.equals(Term.StatusCode.SUCCESS)) {
+            //     System.out.println("Login success");
+            // } else {
+            //     System.out.println("Login failed");
+            // }
+                    
             ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Register");
         }
     }
@@ -184,6 +211,12 @@ public class GUI extends JFrame {
             // System.out.println(password);
             ((CardLayout) getContentPane().getLayout()).show(getContentPane(), "Login");
         }
+    }
+
+    private JPanel createChatPanel() {
+        JPanel chatPanel = new JPanel();
+        chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.PAGE_AXIS));
+        return chatPanel;
     }
 
     public static void main(String[] args) {
